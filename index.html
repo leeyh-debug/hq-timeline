@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>본부 타임라인</title>
+<script>
+  // 4단계에서 발급받은 웹 앱 URL을 넣습니다 (…/exec 로 끝나는 주소)
+  const WEB_APP_URL = 'https://script.google.com/a/macros/ihateflyingbugs.com/s/AKfycbxBYMCW7tuR6q1WAW3VXFbZPbo7UKbj8w2ZXqV3Oxe3wWVWxqWmQTU4eI2lCDRwhSrE/exec';
+  if (!WEB_APP_URL.includes('여기에')) location.replace(WEB_APP_URL);
+</script>
+<style>body{font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#F4F5F7;color:#1E2024;display:grid;place-items:center;min-height:100vh;margin:0}
+.c{background:#fff;border:1px solid #E1E3E8;border-radius:14px;padding:28px 32px;text-align:center}a{color:#0047B3}</style>
+</head>
+<body>
+<div class="c">
+  <h1 style="font-size:18px;margin:0 0 8px">본부 타임라인으로 이동 중…</h1>
+  <p style="font-size:14px;color:#4F545F;margin:0">자동으로 넘어가지 않으면 <a id="go" href="#">여기</a>를 눌러주세요.</p>
+</div>
+<script>document.getElementById('go').href = WEB_APP_URL;</script>
+</body>
+</html>
