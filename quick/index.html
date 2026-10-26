@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>본부 타임라인</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="본부">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C1E21" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root { --ink:#0B0B0B; --ink2:#4F545F; --ink3:#868E96; --bg:#FFFFFF; --soft:#F2F3F5; --soft2:#E9EBEE; --todo:#00B85C; --todoBg:#E2FBEC; --todoTx:#00703A; --hq:#0066FF; --hqBg:#EAF2FF; --hqTx:#0047B3; --mt:#4C6EF5; --warn:#E03131; --next:rgba(255,212,59,.3);
+  --font: -apple-system, 'Apple SD Gothic Neo', 'Pretendard', 'Malgun Gothic', system-ui, sans-serif; }
+@media (prefers-color-scheme: dark) { :root { --ink:#F1F3F5; --ink2:#C1C5CC; --ink3:#8B929B; --bg:#1C1E21; --soft:#26292D; --soft2:#30343A; --todoBg:#12351F; --todoTx:#69DB9B; --hqBg:#132744; --hqTx:#8AB8FF; --next:rgba(255,212,59,.18); } }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+body { padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 24px); max-width: 560px; margin: 0 auto; }
+[hidden] { display: none !important; }
+h1 { font-size: 22px; margin: 0; letter-spacing: -0.3px; }
+.muted { color: var(--ink3); font-size: 13px; }
+.err { color: var(--warn); font-size: 13px; min-height: 18px; }
+button { font-family: var(--font); }
+.btn { border: 0; border-radius: 12px; padding: 12px 16px; font: 700 15px/20px var(--font); background: var(--soft); color: var(--ink); }
+.btn.dark { background: var(--ink); color: var(--bg); }
+.btn:disabled { opacity: .45; }
+input { font: 600 18px/26px var(--font); color: var(--ink); background: var(--soft); border: 0; border-radius: 14px; padding: 14px 16px; width: 100%; outline: none; -webkit-appearance: none; }
+input:focus { background: var(--soft2); }
+.top { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.top .muted { flex: 1; }
+.icon { border: 0; background: var(--soft); width: 38px; height: 34px; border-radius: 10px; font-size: 17px; color: var(--ink); }
+.seg { display: flex; background: var(--soft); border-radius: 12px; padding: 3px; gap: 3px; margin-bottom: 10px; }
+.seg button { flex: 1; border: 0; background: transparent; color: var(--ink3); font: 700 15px/20px var(--font); padding: 10px 8px; border-radius: 9px; }
+.seg button.on { background: var(--bg); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.row { display: flex; gap: 8px; }
+.row input { flex: 1; }
+.save { flex: none; width: 76px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; margin: 10px 0 2px; }
+.chip { font: 600 13px/18px var(--font); padding: 5px 10px; border-radius: 9999px; background: var(--soft); color: var(--ink2); }
+.chip.todo { background: var(--todoBg); color: var(--todoTx); } .chip.hq { background: var(--hqBg); color: var(--hqTx); }
+.kind { font-size: 12px; color: var(--ink3); margin-bottom: 12px; }
+.toast { position: fixed; left: 16px; right: 16px; bottom: calc(env(safe-area-inset-bottom) + 16px); max-width: 528px; margin: 0 auto; background: var(--ink); color: var(--bg); border-radius: 14px; padding: 13px 16px; font: 600 14px/20px var(--font); display: flex; gap: 12px; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,.25); z-index: 9; }
+.toast span { flex: 1; } .toast.bad { background: var(--warn); color: #fff; }
+.toast button { border: 0; background: transparent; color: inherit; font: 700 14px/20px var(--font); text-decoration: underline; padding: 0; }
+.day { background: var(--soft); border-radius: 16px; padding: 14px 12px 10px; }
+.day h4 { margin: 0 4px 6px; font: 700 13px/18px var(--font); color: var(--ink2); display: flex; justify-content: space-between; gap: 8px; }
+.day h4 + h4, .gap { margin-top: 12px; }
+.it { display: flex; align-items: center; gap: 10px; padding: 10px 6px; border-radius: 10px; font-size: 15px; line-height: 21px; }
+.it:active { background: var(--soft2); }
+.it.next { background: var(--next); }
+.bar { flex: none; width: 3px; height: 17px; border-radius: 2px; background: var(--hq); } .bar.mt { background: var(--mt); } .bar.rt { background: var(--ink3); }
+.t { flex: none; width: 44px; font-size: 13px; color: var(--ink3); font-variant-numeric: tabular-nums; } .t.late { color: var(--warn); }
+.n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ck { flex: none; width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--ink3); display: grid; place-items: center; color: #fff; font: 800 13px/1 var(--font); }
+.it.done .ck { background: var(--todo); border-color: var(--todo); } .it.done .n { text-decoration: line-through; color: var(--ink3); }
+.empty { font-size: 13px; color: var(--ink3); padding: 6px; }
+.names { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.names button { border: 0; border-radius: 9999px; padding: 10px 16px; background: var(--soft); color: var(--ink); font: 600 15px/20px var(--font); }
+.names button.on { background: var(--ink); color: var(--bg); }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.tip { background: var(--hqBg); color: var(--hqTx); border-radius: 14px; padding: 12px 14px; font-size: 13px; line-height: 20px; margin-bottom: 14px; }
+.tip b { font-weight: 800; }
+.sheet { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: flex; align-items: flex-end; z-index: 8; }
+.sheet > div { background: var(--bg); width: 100%; border-radius: 18px 18px 0 0; padding: 8px 12px calc(env(safe-area-inset-bottom) + 12px); }
+.sheet button { display: block; width: 100%; text-align: left; border: 0; background: transparent; color: var(--ink); font: 600 16px/22px var(--font); padding: 14px 10px; border-radius: 10px; }
+.sheet button.red { color: var(--warn); }
+</style>
+</head>
+<body>
+<!-- 연결 (처음 한 번) -->
+<section id="vConnect" hidden>
+  <h1>본부 타임라인 연결</h1>
+  <p class="muted">처음 한 번만 · 내 이름을 고르면 회사 메일로 6자리 코드가 가요</p>
+  <div class="names" id="names"><span class="muted">불러오는 중…</span></div>
+  <div class="stack">
+    <button class="btn" id="send" disabled>회사 메일로 코드 받기</button>
+    <div id="codeBox" hidden class="stack">
+      <span class="muted" id="sent"></span>
+      <input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6자리 코드">
+      <button class="btn dark" id="go">연결</button>
+    </div>
+    <div class="err" id="cErr"></div>
+  </div>
+</section>
+
+<!-- 등록 + 오늘 -->
+<section id="vMain" hidden>
+  <div class="tip" id="installTip" hidden>📲 <b>홈 화면에 아이콘 만들기</b> — 아래 <b>공유 버튼(□↑)</b> → <b>「홈 화면에 추가」</b>. 다음부터는 아이콘만 누르면 바로 적을 수 있어요.</div>
+  <div class="top"><h1>본부 타임라인</h1><span class="muted" id="who"></span><button class="icon" id="refresh" aria-label="새로고침">↻</button><button class="icon" id="more" aria-label="더 보기">⋯</button></div>
+  <div class="seg" id="seg"><button data-m="todo" class="on">✔ 할 일</button><button data-m="hq">🏢 본부 일정</button></div>
+  <form class="row" id="form" autocomplete="off"><input id="q" enterkeyhint="done" placeholder="예) 내일 3시 자료 정리"><button class="btn dark save" id="save">저장</button></form>
+  <div class="chips" id="chips"></div>
+  <div class="kind" id="kind"></div>
+  <div class="day" id="day"><div class="empty">불러오는 중…</div></div>
+</section>
+
+<div class="sheet" id="sheet" hidden><div>
+  <button id="mSite">본부 타임라인 사이트 열기</button>
+  <button id="mWidget">홈 화면 위젯도 쓰고 싶어요 (Scriptable)</button>
+  <button id="mOut" class="red">이 기기 연결 끊기</button>
+  <button id="mClose">닫기</button>
+</div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="parse_quick.js"></script>
+<script>
+const DEF_API = 'https://script.google.com/macros/s/AKfycbxPt3SwWwoKKgMFxopocu105xIkqb8RTq85kffPWZCh8NTc_rvjalTC-XagM8JbWJd8/exec';
+const qs = new URLSearchParams(location.search);
+const API = (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && qs.get('api')) || DEF_API; /* 시험할 때만 바꿀 수 있음 */
+const LS = { get: k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }, del: k => { try { localStorage.removeItem(k); } catch (e) {} } };
+const $ = id => document.getElementById(id);
+const WD = ['일', '월', '화', '수', '목', '금', '토'];
+const S = { mode: 'todo', feed: null, last: null, busy: false, name: '' };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const todayIso = () => { const d = new Date(), p = v => String(v).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
+const md = iso => { const [y, m, d] = iso.split('-').map(Number); return `${m}/${d}(${WD[new Date(y, m - 1, d).getDay()]})`; };
+const rel = iso => { const t = todayIso(); if (iso === t) return '오늘'; const n = Math.round((new Date(iso) - new Date(t)) / 864e5); return n === 1 ? '내일' : n === 2 ? '모레' : md(iso); };
+
+async function call(body) {
+  try { const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), redirect: 'follow' }); return await r.json(); }
+  catch (e) { return { ok: false, code: 'NETWORK', message: '인터넷 연결을 확인해 주세요' }; }
+}
+async function api(body) { const r = await call({ ...body, k: LS.get('hq.key') }); if (r && r.code === 'AUTH') { LS.del('hq.key'); showConnect(); } return r; }
+
+function toast(msg, opt) {
+  const t = $('toast'); t.hidden = false; t.className = 'toast' + (opt && opt.bad ? ' bad' : '');
+  t.innerHTML = `<span>${esc(msg)}</span>` + (opt && opt.undo ? '<button id="undo">되돌리기</button>' : '');
+  if (opt && opt.undo) $('undo').onclick = undo;
+  clearTimeout(S.tt); S.tt = setTimeout(() => { t.hidden = true; }, opt && opt.keep ? 6000 : 4000);
+}
+
+/* ── 연결 ── */
+async function showConnect() {
+  $('vMain').hidden = true; $('vConnect').hidden = false; $('cErr').textContent = '';
+  const r = await call({ a: 'people' });
+  if (!r.ok) { $('names').innerHTML = `<span class="err">${esc(r.message || '불러오지 못했어요')}</span>`; return; }
+  $('names').innerHTML = r.people.map(n => `<button data-n="${esc(n)}">${esc(n)}</button>`).join('');
+  $('names').querySelectorAll('button').forEach(b => b.onclick = () => { S.name = b.dataset.n; $('names').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); $('send').disabled = false; $('codeBox').hidden = true; $('cErr').textContent = ''; });
+}
+$('send').onclick = async () => {
+  $('send').disabled = true; $('cErr').textContent = '';
+  const r = await call({ a: 'codeStart', name: S.name }); $('send').disabled = false;
+  if (!r.ok) { $('cErr').textContent = r.message; return; }
+  $('sent').textContent = `${r.sentTo} 로 보냈어요 (10분 안에 입력)`; $('codeBox').hidden = false; $('code').focus();
+};
+$('go').onclick = async () => {
+  const code = $('code').value.trim(); if (code.length !== 6) { $('cErr').textContent = '6자리를 넣어 주세요'; return; }
+  $('go').disabled = true;
+  const dev = /iPhone|iPad/.test(navigator.userAgent) ? '아이폰 · 홈 화면' : /Android/.test(navigator.userAgent) ? '안드로이드 · 홈 화면' : '브라우저';
+  const r = await call({ a: 'codeVerify', name: S.name, code, device: dev }); $('go').disabled = false;
+  if (!r.ok) { $('cErr').textContent = r.message; return; }
+  LS.set('hq.key', r.key); LS.set('hq.name', r.me.name); start();
+};
+$('code').addEventListener('keydown', e => { if (e.key === 'Enter') $('go').click(); });
+
+/* ── 등록 ── */
+function parse() { const f = S.feed || {}; return hqParseQuick($('q').value, { me: LS.get('hq.name'), people: f.people || [], today: todayIso() }); }
+function preview() {
+  const v = $('q').value.trim(), p = parse(), hq = S.mode === 'hq', chips = [];
+  if (v) {
+    if (p.hasDate || hq) chips.push(`📅 ${rel(p.date)}${p.timeStart ? ' ' + p.timeStart + (p.timeEnd ? '–' + p.timeEnd : '') : ''}`);
+    else if (p.timeStart) chips.push('🕐 ' + p.timeStart);
+    if (hq && p.people.length) chips.push('👥 ' + p.people.join(', '));
+    if (hq && p.place) chips.push('📍 ' + p.place);
+  }
+  $('chips').innerHTML = (v ? `<span class="chip ${hq ? 'hq' : 'todo'}">${esc(p.title || v)}</span>` : '') + chips.map(c => `<span class="chip">${esc(c)}</span>`).join('');
+  $('kind').textContent = !hq ? '✔ 나만 보는 할 일 · 날짜·시간은 적으면 알아서' : p.people.length ? `🏢 본부 회의 · ${p.people.length}명에게 알림` : '🏢 본부 업무 (사람을 적으면 회의)';
+}
+function setMode(m) { S.mode = m; document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); $('q').placeholder = m === 'hq' ? '예) 금요일 2시 주간 점검 @정재현 크리켓' : '예) 내일 3시 자료 정리'; preview(); }
+document.querySelectorAll('#seg button').forEach(b => b.onclick = () => { setMode(b.dataset.m); $('q').focus(); });
+$('q').addEventListener('input', preview);
+$('form').onsubmit = async e => {
+  e.preventDefault(); const v = $('q').value.trim(); if (!v || S.busy) return;
+  S.busy = true; $('save').disabled = true; $('save').textContent = '…';
+  const r = await api({ a: 'add', mode: S.mode, text: v, parsed: parse() });
+  S.busy = false; $('save').disabled = false; $('save').textContent = '저장';
+  if (!r.ok) return toast(r.message || '저장 실패', { bad: true, keep: true });
+  $('q').value = ''; preview(); $('q').blur();
+  if (r.kind === 'todo') { S.last = { kind: 'todo', id: r.memo.id }; toast(`✔ 「${r.memo.text}」` + (r.memo.date ? ` ${rel(r.memo.date)}${r.memo.time ? ' ' + r.memo.time : ''}` : '') + ' 할 일 추가', { undo: true }); }
+  else { const x = r.record; S.last = { kind: 'item', id: x.id }; toast(`🏢 「${x.title}」 ${rel(x.start)}${x.timeStart ? ' ' + x.timeStart : ''} 본부 ${x.type === 'meeting' ? '회의' : '업무'}` + (r.notified ? ` · ${r.notified}명 알림` : ''), { undo: true }); }
+  refresh();
+};
+async function undo() { if (!S.last) return; const l = S.last; S.last = null; const r = await api({ a: 'undo', kind: l.kind, id: l.id }); toast(r.ok ? '되돌렸어요' : (r.message || '되돌리기 실패'), { bad: !r.ok }); refresh(); }
+
+/* ── 오늘 ── */
+function render() {
+  const f = S.feed; if (!f) return;
+  const t = f.today || todayIso(), now = new Date().toTimeString().slice(0, 5);
+  const items = (f.items || []).filter(i => i.start <= t && i.end >= t);
+  const sched = [...items.map(i => ({ k: i.type === 'meeting' || i.type === 'interview' ? 'mt' : 'hq', t: i.timeStart || '', title: i.title + (i.place ? ' · ' + i.place : ''), link: i.link, done: i.status === '완료' })),
+    ...(f.routines || []).map(r => ({ k: 'rt', t: r.timeStart || '', title: r.title }))].sort((a, b) => (a.t || '~').localeCompare(b.t || '~'));
+  const nx = sched.find(r => r.t && r.t >= now && !r.done);
+  const todos = (f.todos || []).filter(x => !x.date || x.date <= t), later = (f.todos || []).filter(x => x.date && x.date > t);
+  const [y, m, d] = t.split('-').map(Number);
+  $('day').innerHTML = `<h4><span>오늘 ${m}.${d} (${WD[new Date(y, m - 1, d).getDay()]}) · 일정 ${sched.length}</span>${nx ? `<span>다음 ${esc(nx.t)}</span>` : ''}</h4>` +
+    (sched.map(r => `<div class="it${r === nx ? ' next' : ''}" ${r.link ? `data-open="${esc(r.link)}"` : ''}><span class="bar ${r.k}"></span><span class="t">${esc(r.t || (r.k === 'rt' ? '고정' : '하루'))}</span><span class="n">${esc(r.title)}</span></div>`).join('') || '<div class="empty">오늘 내 일정이 없어요</div>') +
+    `<h4 class="gap"><span>할 일 ${todos.filter(x => !x.done).length}</span>${later.length ? `<span>다음에 할 일 ${later.length}</span>` : ''}</h4>` +
+    (todos.map(x => `<div class="it${x.done ? ' done' : ''}" data-todo="${esc(x.id)}" data-done="${x.done ? 1 : 0}"><span class="ck">${x.done ? '✓' : ''}</span><span class="n">${esc(x.text)}</span>${x.date && x.date < t ? `<span class="t late">${md(x.date)}</span>` : x.time ? `<span class="t">${esc(x.time)}</span>` : ''}</div>`).join('') || '<div class="empty">남은 할 일이 없어요</div>') +
+    (later.length ? later.slice(0, 5).map(x => `<div class="it"><span class="ck" style="opacity:.4"></span><span class="n">${esc(x.text)}</span><span class="t">${rel(x.date)}${x.time ? ' ' + esc(x.time) : ''}</span></div>`).join('') : '');
+  $('day').querySelectorAll('[data-open]').forEach(el => el.onclick = () => location.href = el.dataset.open);
+  $('day').querySelectorAll('[data-todo]').forEach(el => el.onclick = async () => {
+    const done = el.dataset.done !== '1'; el.classList.toggle('done', done); el.dataset.done = done ? '1' : '0'; el.querySelector('.ck').textContent = done ? '✓' : '';
+    const r = await api({ a: 'done', id: el.dataset.todo, done }); if (!r.ok) toast(r.message, { bad: true }); refresh();
+  });
+}
+async function refresh() { const r = await api({ a: 'feed', days: 14 }); if (r.ok) { S.feed = r; LS.set('hq.feed', JSON.stringify(r)); render(); preview(); } else if (r.code !== 'AUTH' && !S.feed) $('day').innerHTML = `<div class="empty">${esc(r.message || '불러오지 못했어요')}</div>`; }
+$('refresh').onclick = () => { $('day').style.opacity = .5; refresh().then(() => { $('day').style.opacity = 1; }); };
+
+/* ── 더 보기 ── */
+$('more').onclick = () => { $('sheet').hidden = false; };
+$('mClose').onclick = $('sheet').onclick = e => { if (e.target === $('sheet') || e.target === $('mClose')) $('sheet').hidden = true; };
+$('mSite').onclick = () => { if (S.feed && S.feed.site) location.href = S.feed.site; };
+$('mWidget').onclick = () => { location.href = 'widget.html'; };
+$('mOut').onclick = async () => { await api({ a: 'revoke' }); LS.del('hq.key'); LS.del('hq.feed'); $('sheet').hidden = true; showConnect(); };
+
+function start() {
+  $('vConnect').hidden = true; $('vMain').hidden = false; $('who').textContent = LS.get('hq.name');
+  const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  $('installTip').hidden = !!standalone || !/iPhone|iPad|Android/.test(navigator.userAgent);
+  try { S.feed = JSON.parse(LS.get('hq.feed') || 'null'); } catch (e) {}
+  setMode('todo'); render(); refresh();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && LS.get('hq.key')) refresh(); });
+if (LS.get('hq.key')) start(); else showConnect();
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>본부 타임라인 · 아이폰 위젯</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root { --ink:#0B0B0B; --ink3:#868E96; --bg:#FFFFFF; --soft:#F2F3F5; --hqBg:#EAF2FF; --hqTx:#0047B3; --font: -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif; }
+@media (prefers-color-scheme: dark) { :root { --ink:#F1F3F5; --ink3:#8B929B; --bg:#1C1E21; --soft:#26292D; --hqBg:#132744; --hqTx:#8AB8FF; } }
+* { box-sizing: border-box; }
+body { margin: 0 auto; max-width: 560px; padding: calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 28px); background: var(--bg); color: var(--ink); font-family: var(--font); }
+h1 { font-size: 22px; margin: 0 0 4px; } p { line-height: 1.55; }
+.muted { color: var(--ink3); font-size: 13px; }
+ol { list-style: none; padding: 0; margin: 18px 0; display: flex; flex-direction: column; gap: 12px; counter-reset: s; }
+li { background: var(--soft); border-radius: 16px; padding: 14px 16px 14px 52px; position: relative; font-size: 15px; line-height: 22px; counter-increment: s; }
+li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: var(--bg); font: 800 13px/24px var(--font); text-align: center; }
+a.btn, button.btn { display: block; margin-top: 10px; text-align: center; text-decoration: none; border: 0; width: 100%; border-radius: 12px; padding: 12px; font: 700 15px/20px var(--font); background: var(--ink); color: var(--bg); }
+.note { background: var(--hqBg); color: var(--hqTx); border-radius: 14px; padding: 12px 14px; font-size: 13px; line-height: 20px; }
+.back { color: var(--ink3); text-decoration: none; font-size: 14px; }
+</style>
+</head>
+<body>
+<a class="back" href="./">← 돌아가기</a>
+<h1>홈 화면 위젯 (선택)</h1>
+<p class="muted">목록이 홈 화면에 늘 떠 있게 하고 싶을 때만. 아이폰은 무료 앱 <b>Scriptable</b> 위에서 위젯을 띄워요.</p>
+<ol>
+  <li><b>Scriptable 설치</b> (무료)<a class="btn" href="https://apps.apple.com/kr/app/scriptable/id1405459188">App Store 열기</a></li>
+  <li><b>위젯 파일 받기</b> → 「다운로드」 → 받은 파일을 눌러 <b>Scriptable로 열기 → 추가</b><a class="btn" href="본부 타임라인.scriptable" download>위젯 파일 받기</a></li>
+  <li><b>위젯 연결</b> — 이 홈 화면 앱의 연결을 그대로 넘겨요 (메일 코드 다시 안 받아도 돼요)<button class="btn" id="link">위젯에 연결하기</button><div class="muted" id="msg" style="margin-top:6px"></div></li>
+  <li><b>홈 화면에 놓기</b> — 빈 곳 길게 누르기 → 왼쪽 위 <b>＋</b> → <b>Scriptable</b> → 중간 크기 추가 → 위젯을 길게 눌러 <b>위젯 편집</b> → Script: <b>본부 타임라인</b></li>
+</ol>
+<div class="note">위젯의 <b>＋</b>를 누르면 바로 할 일을 적을 수 있고, 나머지를 누르면 메뉴가 떠요. 잠금 화면 위젯도 같은 방법으로 놓을 수 있어요.</div>
+<script>
+let key = '', name = '';
+try { key = localStorage.getItem('hq.key') || ''; name = localStorage.getItem('hq.name') || ''; } catch (e) {}
+document.getElementById('link').onclick = () => {
+  if (!key) { document.getElementById('msg').textContent = '먼저 홈 화면 앱에서 연결해 주세요 (← 돌아가기)'; return; }
+  location.href = 'scriptable:///run/' + encodeURIComponent('본부 타임라인') + '?key=' + key + '&name=' + encodeURIComponent(name);
+};
+</script>
+</body>
+</html>
