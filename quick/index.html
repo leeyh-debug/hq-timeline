@@ -113,7 +113,9 @@ const API = (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && qs.get('api
 const LS = { get: k => { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }, del: k => { try { localStorage.removeItem(k); } catch (e) {} } };
 const $ = id => document.getElementById(id);
 const WD = ['일', '월', '화', '수', '목', '금', '토'];
-const S = { mode: 'todo', feed: null, last: null, busy: false, name: '' };
+const S = { mode: 'todo', feed: null, last: null, busy: false, name: '', hqType: null };
+const hqKindTxt = (p) => { const k = S.hqType || p.kind || 'task'; return k === 'meeting' ? `👥 본부 회의${p.people.length ? ` · ${p.people.length}명에게 알림` : ''} · 눌러서 업무로 ⇄` : `🏢 본부 업무${p.people.length ? ' · 함께 맡음 ' + p.people.join(', ') : ''} · 눌러서 회의로 ⇄`; };
+
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const todayIso = () => { const d = new Date(), p = v => String(v).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
 const md = iso => { const [y, m, d] = iso.split('-').map(Number); return `${m}/${d}(${WD[new Date(y, m - 1, d).getDay()]})`; };
@@ -167,18 +169,19 @@ function preview() {
     if (hq && p.place) chips.push('📍 ' + p.place);
   }
   $('chips').innerHTML = (v ? `<span class="chip ${hq ? 'hq' : 'todo'}">${esc(p.title || v)}</span>` : '') + chips.map(c => `<span class="chip">${esc(c)}</span>`).join('');
-  $('kind').textContent = !hq ? '✔ 나만 보는 할 일 · 날짜·시간은 적으면 알아서' : p.people.length ? `🏢 본부 회의 · ${p.people.length}명에게 알림` : '🏢 본부 업무 (사람을 적으면 회의)';
+  $('kind').textContent = !hq ? '✔ 나만 보는 할 일 · 날짜·시간은 적으면 알아서' : hqKindTxt(p); $('kind').style.cursor = hq ? 'pointer' : '';
 }
 function setMode(m) { S.mode = m; document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); $('q').placeholder = m === 'hq' ? '예) 금요일 2시 주간 점검 @정재현 크리켓' : '예) 내일 3시 자료 정리'; preview(); }
 document.querySelectorAll('#seg button').forEach(b => b.onclick = () => { setMode(b.dataset.m); $('q').focus(); });
 $('q').addEventListener('input', preview);
+$('kind').addEventListener('click', () => { if (S.mode !== 'hq') return; const p = parse(); S.hqType = (S.hqType || p.kind || 'task') === 'meeting' ? 'task' : 'meeting'; preview(); });
 $('form').onsubmit = async e => {
   e.preventDefault(); const v = $('q').value.trim(); if (!v || S.busy) return;
   S.busy = true; $('save').disabled = true; $('save').textContent = '…';
-  const r = await api({ a: 'add', mode: S.mode, text: v, parsed: parse() });
+  const p0 = parse(), r = await api({ a: 'add', mode: S.mode, text: v, parsed: p0, hqType: S.mode === 'hq' ? (S.hqType || p0.kind || 'task') : undefined });
   S.busy = false; $('save').disabled = false; $('save').textContent = '저장';
   if (!r.ok) return toast(r.message || '저장 실패', { bad: true, keep: true });
-  $('q').value = ''; preview(); $('q').blur();
+  $('q').value = ''; S.hqType = null; preview(); $('q').blur();
   if (r.kind === 'todo') { S.last = { kind: 'todo', id: r.memo.id }; toast(`✔ 「${r.memo.text}」` + (r.memo.date ? ` ${rel(r.memo.date)}${r.memo.time ? ' ' + r.memo.time : ''}` : '') + ' 할 일 추가', { undo: true }); }
   else { const x = r.record; S.last = { kind: 'item', id: x.id }; toast(`🏢 「${x.title}」 ${rel(x.start)}${x.timeStart ? ' ' + x.timeStart : ''} 본부 ${x.type === 'meeting' ? '회의' : '업무'}` + (r.notified ? ` · ${r.notified}명 알림` : ''), { undo: true }); }
   refresh();
